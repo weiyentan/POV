@@ -1,0 +1,4 @@
+*.TempPoint.*
+*.RestorePoint.*
+PesterGlossary.docx
+CustomMenu.inf
