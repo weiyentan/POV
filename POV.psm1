@@ -12,6 +12,8 @@
 
 function Invoke-POVTest
 {
+	#.ExternalHelp POV.psm1-Help.xml
+	[CmdletBinding()]
 	param
 	(
 		[Parameter(Mandatory = $true,
