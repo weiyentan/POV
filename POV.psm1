@@ -12,25 +12,32 @@
 
 function Invoke-POVTest
 {
+	#	.EXTERNALHELP POV.psm1-Help.xml
+	#		
+	
+	[CmdletBinding()]
 	param
 	(
 		[Parameter(Mandatory = $true,
 				   ValueFromPipeline = $true,
 				   ValueFromPipelineByPropertyName = $true,
 				   Position = 1)]
-		[psobject]$inputobject,
+		[psobject]$Inputobject,
 		[Parameter(Mandatory = $true,
 				   ValueFromPipelineByPropertyName = $true,
 				   Position = 2)]
-		[string]$testpath,
+		[string]$Testpath,
 		[Parameter(Mandatory = $false,
 				   ValueFromPipelineByPropertyName = $true,
 				   Position = 3)]
-		[pscredential]$credential,
+		[pscredential]$Credential,
 		[Parameter(Position = 4)]
-		[switch]$passthru,
+		[switch]$Passthru,	
 		[Parameter(Position = 5)]
-		[switch]$quiet
+		[switch]$Quiet,
+		[Parameter(ValueFromPipelineByPropertyName = $true,
+				   Position = 6)]
+		[string[]]$Exclude
 	)
 	
 	begin { }
@@ -45,29 +52,45 @@ function Invoke-POVTest
 			$name = $_.Name
 			$definition = $_.Definition
 			$definitionsplit = ($definition -split '=')[1]
-			
-			
 			$hash.Add($name, $definitionsplit)
+		}
+		
+		if ($exclude)
+		{
+			foreach ($item in $exclude)
+			{
+				$evaluateexclude = $hash.ContainsKey($item)
+				if ($evaluateexclude -eq $true)
+				{
+					$hash.remove($item)
+				}
+				
+			}
+			
 			
 		}
-		$path = $path
+		
+		
 		$finalhash = @{ 'Path' = $testpath; 'Parameters' = $hash }
 		if ($credential)
 		{
 			$finalhash.parameters.add('credential', $credential)
 		}
 		
+		$param = @{
+			'script' = $finalhash
+		}
 		if ($passthru)
 		{
-			$finalhash.Add('passthru', $true)
+			$param.Add('passthru', $true)
 		}
 		
 		if ($quiet)
 		{
-			$finalhash.Add('quiet', $true)
+			$param.Add('quiet', $true)
 		}
 		
-		Invoke-Pester -Script $finalhash
+		Invoke-Pester  @param
 	}
 	End { }
 }
